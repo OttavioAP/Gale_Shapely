@@ -66,20 +66,13 @@ for(int sp =0;sp<n;sp++){//For each student sp
                     return false; //then it's unstable
                 }else{//if student is matched, check for type 2
                     int h = currMatching.get(s); //h is sps current school
-                    if(compareSchools(hp, h, s, studentPrefs))
+                    if(compareSchools(hp, h, s, studentPrefs)){//if hp is more desirable than h
+                        return false; 
+                    }
                 }
-
-
-               
             }
-
-
-            
-    
     }
 }
-
-
     return true;
 }
 
@@ -120,85 +113,19 @@ ArrayList<ArrayList<Integer>> schoolPreferences) {
 }
 
 
+public class StudentRank {
+    public int student;
+    public int rank;
 
-//     @Override
-// public boolean isStableMatching(Matching problem) {
-//         int m = problem.getHighSchoolCount();
-//         int n = problem.getStudentCount();
-
-//         ArrayList<ArrayList<Integer>> highschoolPrefs = problem.getHighSchoolPreference();//indexed by high school, contains an arraylist of their student pref, indexed by student
-//         ArrayList<ArrayList<Integer>> studentPrefs = problem.getStudentPreference();//indexed by student, contains an arraylist of their high school pref, indexed by high school
-//         ArrayList<Integer> highschoolSpots = problem.getHighSchoolSpots();//indexed by high schools, contains there # of spots
-//         ArrayList<Integer> currMatching = problem.getStudentMatching();
-    
-    
-//         for(int h =0;h < m;h++ ){//for each high school h
-//             for(int sp =0;sp <n;sp++){//for each student, sp
-//                 if(currMatching.get(sp)==-1){//if unmatched
-//                     //check if the high school would rather have them then any of their students
-//                     //do this by iterating through the matchlist, finding each student of that high school in the preference list of that high school,
-//                     // and comparing that index to the index of the student z in the preference list
-//                     for(int s=0;s < n;s++){//for each student in the matchlist s
-//                         if(currMatching.get(s) == h){//if that student is matched to h
-//                             //check if h would rather have s than s'
-//                             if(highschoolPrefs.get(h).indexOf(s) > highschoolPrefs.get(h).indexOf(sp)){//lower index is more desirable, condition true if sp better
-//                                 return false;
-//                             }
-//                         } 
-
-//                     }
-//                 }else{//if matched
-//                     //check if the high school would rather have them then one of their students
-//                     //do this by iterating through the matchlist, finding each student of that high school in the preference list of that high school,
-//                     // and comparing that index to the index of the student z in the preference list
-
-//                     int hp = currMatching.get(sp); //sps current high school, hp
-
-//                     //if so, check if the student would rather have that high school than their current high school
-//                     for(int s=0;s < n;s++){//for each student in the matchlist s
-//                         if(currMatching.get(s) == h){//if that student is matched to h
-//                             //check if h would rather have s than s'
-//                             if(highschoolPrefs.get(h).indexOf(sp) < highschoolPrefs.get(h).indexOf(s)){//lower index is more desirable, condition true if sp better
-//                                 //check if sp would rather have h than h'
-//                                 if(studentPrefs.get(sp).indexOf(h) < studentPrefs.get(sp).indexOf(hp)){
-//                                     return false;
-//                                 }
-
-//                             }
-//                         } 
-
-//                     }
-//                 }
-
-//             }
-
-          
-
-        
-            
+    public StudentRank(int student, int rank) {
+        this.student = student;
+        this.rank = rank;
+    }
+}
 
 
-//         }
- 
-//     return true;
-//     }
+        /**
 
-
-
-
-        /*
-         * Loop one: repeat until there are no remaining spots. This will work because there are more students than spots
-         *      find a student who hasn't proposed to every school yet, if you can't, end the program and return the current matching
-         *      find the next high school on his preference list
-         *      
-         *      
-         * 
-         * 
-         * 
-         */
-
-
-    /**
      * Determines a solution to the stable matching problem from the given input set. Study the
      * project description to understand the variables which represent the input to your solution.
      *
@@ -211,53 +138,123 @@ ArrayList<ArrayList<Integer>> schoolPreferences) {
         ArrayList<ArrayList<Integer>> highschoolPrefs = problem.getHighSchoolPreference();
         ArrayList<ArrayList<Integer>> studentPrefs = problem.getStudentPreference();
         ArrayList<Integer> highschoolSpots = problem.getHighSchoolSpots();
-    
+
         ArrayList<Integer> studentMatching = new ArrayList<>(Collections.nCopies(n, -1)); // Initialize all students as unmatched
-        ArrayList<Integer> studentNextProposeIndex = new ArrayList<>(Collections.nCopies(n, 0)); // Index to keep track of the next high school to propose
-    
-        int totalSpots = problem.totalHighSchoolSpots();
-    
-        while (totalSpots > 0) {
-            int freeStudent = -1;
-    
-            // Find a free student who hasn't proposed to every high school yet
-            for (int i = 0; i < n; i++) {
-                if (studentMatching.get(i) == -1 && studentNextProposeIndex.get(i) < m) {
-                    freeStudent = i;
+        ArrayList<Integer> studentPreferenceIndex = new ArrayList<>(Collections.nCopies(n, 0)); // Initialize all students as unmatched
+
+        boolean studentRemains = true;
+        int studentPrime = -1;
+        while(studentRemains){ //while a student hasn't reached the end of their preferencelist. # of elements in preference lists = m * n
+
+            studentRemains = false;
+
+            for(int sp =0;sp < n;sp++){ //search for an unmatched student that hasn't reached the end of their preference list
+                if(studentPreferenceIndex.get(sp) < m) //check that hasn't reached end of preference list 
+                if(studentMatching.get(sp) == -1){ //if that student is unmatched
+                    //have that student propose to the next school on their list
+                    studentRemains = true;
+                    studentPrime = sp;
                     break;
                 }
             }
-    
-            if (freeStudent != -1) {
-                int highSchool = studentPrefs.get(freeStudent).get(studentNextProposeIndex.get(freeStudent));
-                studentNextProposeIndex.set(freeStudent, studentNextProposeIndex.get(freeStudent) + 1);
-    
-                if (highschoolSpots.get(highSchool) > 0) {
-                    studentMatching.set(freeStudent, highSchool);
-                    highschoolSpots.set(highSchool, highschoolSpots.get(highSchool) - 1);
-                    totalSpots--;
-                } else {
-                    int currentMatchedStudent = -1;
-    
-                    // Find the student currently matched to the high school
-                    for (int i = 0; i < n; i++) {
-                        if (studentMatching.get(i) == highSchool) {
-                            currentMatchedStudent = i;
-                            break;
+
+            if(studentRemains){
+                int h = studentPrefs.get(studentPrime).get(studentPreferenceIndex.get(studentPrime)); //gets next desired school
+                studentPreferenceIndex.set(studentPrime, studentPreferenceIndex.get(studentPrime) +1); //increment after use
+
+                if(highschoolSpots.get(h) > 0 ){//check if the school has an open spot
+                    highschoolSpots.set(h,highschoolSpots.get(h) - 1); //decrement number of spots
+                    studentMatching.set(studentPrime, h); //match the two
+                    
+                }else{ //check if the high school would rather have them or their least desirable student
+
+                    int leastPreferredRank =-1;
+                    int leastPreferredStudent = -1;
+
+                    for(int s =0; s < n;s++){//find every student that belongs to that school
+                        if(studentMatching.get(s) == h){ //check for belonging to that school
+
+                            if(leastPreferredRank < highschoolPrefs.get(h).indexOf(s)){ //compare to find least desirable student
+                                //drop s, add studentprime  
+                                leastPreferredRank = highschoolPrefs.get(h).indexOf(s);
+                                leastPreferredStudent = s;
+                            }
                         }
                     }
-    
-                    // Check if the high school prefers the free student over the current matched student
-                    if (highschoolPrefs.get(highSchool).indexOf(freeStudent) < highschoolPrefs.get(highSchool).indexOf(currentMatchedStudent)) {
-                        studentMatching.set(freeStudent, highSchool);
-                        studentMatching.set(currentMatchedStudent, -1);
+
+                    if(leastPreferredRank > 0){ //if the least desirable student is less desirable than studentprime, swap
+                        if(leastPreferredRank >  highschoolPrefs.get(h).indexOf(studentPrime)){
+                        studentMatching.set(studentPrime, h);
+                        studentMatching.set(leastPreferredStudent, -1);
+                        }
                     }
                 }
-            }
         }
-    
+            }
         return new Matching(problem, studentMatching);
     }
+
+
+    // /**
+    //  * Determines a solution to the stable matching problem from the given input set. Study the
+    //  * project description to understand the variables which represent the input to your solution.
+    //  *
+    //  * @return A stable Matching.
+    //  */
+    // @Override
+    // public Matching stableMatchingGaleShapley_studentoptimal(Matching problem) {
+    //     int m = problem.getHighSchoolCount();
+    //     int n = problem.getStudentCount();
+    //     ArrayList<ArrayList<Integer>> highschoolPrefs = problem.getHighSchoolPreference();
+    //     ArrayList<ArrayList<Integer>> studentPrefs = problem.getStudentPreference();
+    //     ArrayList<Integer> highschoolSpots = problem.getHighSchoolSpots();
+    
+    //     ArrayList<Integer> studentMatching = new ArrayList<>(Collections.nCopies(n, -1)); // Initialize all students as unmatched
+    //     ArrayList<Integer> studentNextProposeIndex = new ArrayList<>(Collections.nCopies(n, 0)); // Index to keep track of the next high school to propose
+    
+    //     int totalSpots = problem.totalHighSchoolSpots();
+    
+    //     while (totalSpots > 0) {
+    //         int freeStudent = -1;
+    
+    //         // Find a free student who hasn't proposed to every high school yet
+    //         for (int i = 0; i < n; i++) {
+    //             if (studentMatching.get(i) == -1 && studentNextProposeIndex.get(i) < m) {
+    //                 freeStudent = i;
+    //                 break;
+    //             }
+    //         }
+    
+    //         if (freeStudent != -1) {
+    //             int highSchool = studentPrefs.get(freeStudent).get(studentNextProposeIndex.get(freeStudent));
+    //             studentNextProposeIndex.set(freeStudent, studentNextProposeIndex.get(freeStudent) + 1);
+    
+    //             if (highschoolSpots.get(highSchool) > 0) {
+    //                 studentMatching.set(freeStudent, highSchool);
+    //                 highschoolSpots.set(highSchool, highschoolSpots.get(highSchool) - 1);
+    //                 totalSpots--;
+    //             } else {
+    //                 int currentMatchedStudent = -1;
+    
+    //                 // Find the student currently matched to the high school
+    //                 for (int i = 0; i < n; i++) {
+    //                     if (studentMatching.get(i) == highSchool) {
+    //                         currentMatchedStudent = i;
+    //                         break;
+    //                     }
+    //                 }
+    
+    //                 // Check if the high school prefers the free student over the current matched student
+    //                 if (highschoolPrefs.get(highSchool).indexOf(freeStudent) < highschoolPrefs.get(highSchool).indexOf(currentMatchedStudent)) {
+    //                     studentMatching.set(freeStudent, highSchool);
+    //                     studentMatching.set(currentMatchedStudent, -1);
+    //                 }
+    //             }
+    //         }
+    //     }
+    
+    //     return new Matching(problem, studentMatching);
+    // }
     
 
 
