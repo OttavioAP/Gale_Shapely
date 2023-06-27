@@ -54,16 +54,43 @@ public boolean isStableMatching(Matching problem) {
     ArrayList<ArrayList<Integer>> highschoolPrefs = problem.getHighSchoolPreference();//indexed by high school, contains an arraylist of their student pref, indexed by student
     ArrayList<ArrayList<Integer>> studentPrefs = problem.getStudentPreference();//indexed by student, contains an arraylist of their high school pref, indexed by high school
     ArrayList<Integer> currMatching = problem.getStudentMatching();
+    ArrayList<Integer> highschoolSpots = problem.getHighSchoolSpots();
 
 for(int sp =0;sp<n;sp++){//For each student sp
+
         for(int hp =0; hp < m;hp++){//for each high school to consider
-            int s = getLeastPreferredStudent(hp, currMatching, highschoolPrefs);//Find the least desirable student s for high school hp, s is student already matched
+
+
+            int leastPreferredStudent = -1;
+            int leastPreferredRank = -1;
+            int studentsInSchool = 0;
+
+            for(int s =0; s < n;s++){//find every student that belongs to that school
+                        if(currMatching.get(s) == hp){ //check for belonging to that school
+                        studentsInSchool++;
+                            if(leastPreferredRank < highschoolPrefs.get(hp).indexOf(s)){ //compare to find least desirable student
+                                //drop s, add studentprime  
+                                leastPreferredRank = highschoolPrefs.get(hp).indexOf(s);
+                                leastPreferredStudent = s;
+                            }
+                        }
+                    }
+            
+            int schoolSpots = highschoolSpots.get(hp);
+            if(studentsInSchool < schoolSpots){ //something has gone horribly wrong if there are any high schools without all their spots filled
+                System.out.println("High School Has Empty Spot");
+                return false;
+            }
+
+            int s = leastPreferredStudent;
             if(compareStudents(sp, hp, s, highschoolPrefs)){//if sp is more desirable than s
                 if(currMatching.get(sp)==-1){//If student is unmatched (check for type 1)
+                    System.out.println("type one instability");
                     return false; //then it's unstable
                 }else{//if student is matched, check for type 2
                     int h = currMatching.get(s); //h is sps current school
                     if(compareSchools(hp, h, s, studentPrefs)){//if hp is more desirable than h
+                        System.out.println("type two instability");
                         return false; 
                     }
                 }
@@ -90,24 +117,6 @@ private boolean compareStudents(int sp,int h, int s, ArrayList<ArrayList<Integer
 }
 
 
-// Helper function to get the least preferred student a school is currently matched with
-private int getLeastPreferredStudent(int school, ArrayList<Integer> studentMatching, 
-ArrayList<ArrayList<Integer>> schoolPreferences) {
-    int leastPreferredStudent = -1;
-    int leastPreferredRank = -1;
-
-    for (int student = 0; student < studentMatching.size(); ++student) {
-        if (studentMatching.get(student) == school) {
-            int rank = schoolPreferences.get(school).indexOf(student);
-            if (rank > leastPreferredRank) {
-                leastPreferredRank = rank;
-                leastPreferredStudent = student;
-            }
-        }
-    }
-
-    return leastPreferredStudent;
-}
 
 
 public class StudentRank {
@@ -134,7 +143,8 @@ public class StudentRank {
         int n = problem.getStudentCount();
         ArrayList<ArrayList<Integer>> highschoolPrefs = problem.getHighSchoolPreference();
         ArrayList<ArrayList<Integer>> studentPrefs = problem.getStudentPreference();
-        ArrayList<Integer> highschoolSpots = problem.getHighSchoolSpots();
+        ArrayList<Integer> highschoolSpots = new ArrayList<>();
+        highschoolSpots.addAll(problem.getHighSchoolSpots());//indexed by high schools, contains there # of spots
 
         ArrayList<Integer> studentMatching = new ArrayList<>(Collections.nCopies(n, -1)); // Initialize all students as unmatched
         ArrayList<Integer> studentPreferenceIndex = new ArrayList<>(Collections.nCopies(n, 0)); // Initialize all students as unmatched
@@ -188,7 +198,9 @@ public class StudentRank {
                 }
         }
             }
-        return new Matching(problem, studentMatching);
+
+            problem.setStudentMatching(studentMatching);
+            return problem;
     }
 
 
@@ -229,7 +241,8 @@ public class StudentRank {
 
         ArrayList<ArrayList<Integer>> highschoolPrefs = problem.getHighSchoolPreference();//indexed by high school, contains an arraylist of their student pref, indexed by student
         ArrayList<ArrayList<Integer>> studentPrefs = problem.getStudentPreference();//indexed by student, contains an arraylist of their high school pref, indexed by high school
-        ArrayList<Integer> highschoolSpots = problem.getHighSchoolSpots();//indexed by high schools, contains there # of spots
+        ArrayList<Integer> highschoolSpots = new ArrayList<>();
+        highschoolSpots.addAll(problem.getHighSchoolSpots());//indexed by high schools, contains there # of spots
         ArrayList<Integer> schoolPreferenceIndex = new ArrayList<>(Collections.nCopies(m, 0)); // Initialize all students as unmatched
         ArrayList<Integer> studentMatching = new ArrayList<>(Collections.nCopies(n, -1)); // Initialize all students as unmatched
 
@@ -267,7 +280,8 @@ public class StudentRank {
 
         
 
-         return new Matching(problem, studentMatching);
+         problem.setStudentMatching(studentMatching);
+            return problem;
     }
 
 
