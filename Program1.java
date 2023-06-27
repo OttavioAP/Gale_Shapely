@@ -262,6 +262,7 @@ public class StudentRank {
             if(studentMatching.get(studentPrime) == -1){//if available, matches immediately
                 highschoolSpots.set(currentSchool,highschoolSpots.get(currentSchool) -1); //decrement number of spots for that hs
                 totalSpots --; //decrement total number of spots
+                studentMatching.set(studentPrime,currentSchool); //actually perform matching
             }else{ 
 
                 //check if that student would prefer the high school to the one they're currently matched to
