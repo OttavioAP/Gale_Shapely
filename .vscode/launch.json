@@ -10,8 +10,8 @@
             "name": "Driver",
             "request": "launch",
             "mainClass": "Driver",
-            "args": ["-gs", "3-10-3.in" ],
-            "projectName": "Gale_Shapely_98d280f3"
+            "args": ["-gh", "1-10-5.in" ],
+            "projectName": "Gale_Shapely_5ec2292"
         }
         
     ]
