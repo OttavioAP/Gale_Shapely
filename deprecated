@@ -58,24 +58,9 @@ public boolean isStableMatching(Matching problem) {
     ArrayList<Integer> highschoolSpots = problem.getHighSchoolSpots();//indexed by high schools, contains there # of spots
     ArrayList<Integer> currMatching = problem.getStudentMatching();
 
-for(int sp =0;sp<n;sp++){//For each student sp
-        for(int hp =0; hp < m;hp++){//for each high school to consider
-            int s = getLeastPreferredStudent(hp, currMatching, highschoolPrefs);//Find the least desirable student s for high school hp, s is student already matched
-            if(compareStudents(sp, hp, s, highschoolPrefs)){//if sp is more desirable than s
-                if(currMatching.get(sp)==-1){//If student is unmatched (check for type 1)
-                    return false; //then it's unstable
-                }else{//if student is matched, check for type 2
-                    int h = currMatching.get(s); //h is sps current school
-                    if(compareSchools(hp, h, s, studentPrefs))
-                }
-
-
-               
-            }
-
-
-            
-    
+for(int h =0; h<m;h++){
+    for(int sp =0;sp<n;sp++){
+        
     }
 }
 
@@ -83,26 +68,14 @@ for(int sp =0;sp<n;sp++){//For each student sp
     return true;
 }
 
-//returns true if hp is more desirable than h
-private boolean compareSchools(int hp,int h, int s, ArrayList<ArrayList<Integer>> studentPreferences){
-    if(studentPreferences.get(s).indexOf(hp) < studentPreferences.get(s).indexOf(h)){//if index of hp is lower than index of h, hp is more desirable
-        return true;
-    }
-    return false;
-}
 
-//returns true if sp is more desirable than s
-private boolean compareStudents(int sp,int h, int s, ArrayList<ArrayList<Integer>> schoolPreferences){
-    if(schoolPreferences.get(h).indexOf(sp) < schoolPreferences.get(h).indexOf(s)){//if index of sp is lower than index of s, sp is more desirable
-        return true;
-    }
-    return false;
-}
+
+
 
 
 // Helper function to get the least preferred student a school is currently matched with
-private int getLeastPreferredStudent(int school, ArrayList<Integer> studentMatching, 
-ArrayList<ArrayList<Integer>> schoolPreferences) {
+private int getLeastPreferredStudent(int school, List<Integer> studentMatching, 
+                                     List<List<Integer>> schoolPreferences) {
     int leastPreferredStudent = -1;
     int leastPreferredRank = -1;
 
