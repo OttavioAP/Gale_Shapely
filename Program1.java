@@ -143,10 +143,15 @@ private int[][] createSchoolRankMatrix(ArrayList<ArrayList<Integer>> highschoolP
      */
     @Override
     public Matching stableMatchingGaleShapley_studentoptimal(Matching problem) {
+
+
         int m = problem.getHighSchoolCount();
         int n = problem.getStudentCount();
-        ArrayList<ArrayList<Integer>> highschoolPrefs = problem.getHighSchoolPreference();
-        ArrayList<ArrayList<Integer>> studentPrefs = problem.getStudentPreference();
+
+        ArrayList<ArrayList<Integer>> highschoolPrefs = new ArrayList<>(problem.getHighSchoolPreference());
+        
+        ArrayList<ArrayList<Integer>> studentPrefs = new ArrayList<>(problem.getStudentPreference());
+
         ArrayList<Integer> highschoolSpots = new ArrayList<>();
         highschoolSpots.addAll(problem.getHighSchoolSpots());//indexed by high schools, contains there # of spots
 
@@ -205,7 +210,7 @@ private int[][] createSchoolRankMatrix(ArrayList<ArrayList<Integer>> highschoolP
                             int nextName = nameIterator.next();
                             if (matrix[h][studentPrimeRank] > matrix[h][nextName]) {
                                 // Insert the new number at the correct spot
-                                currAcceptNames.add(nameIterator.nextIndex(), studentPrime);
+                                nameIterator.add(studentPrime);
                                 break;
                             }
                         }
@@ -240,7 +245,7 @@ private int[][] createSchoolRankMatrix(ArrayList<ArrayList<Integer>> highschoolP
                                         int nextName = nameIterator.next();
                                         if (matrix[h][studentPrimeRank] > matrix[h][nextName]) {
                                             // Insert the new number at the correct spot
-                                            currAcceptNames.add(nameIterator.nextIndex(), studentPrime);
+                                            nameIterator.add(studentPrime);
                                             break;
                                         }
                                     }
