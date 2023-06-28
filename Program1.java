@@ -155,13 +155,11 @@ private int[][] createSchoolRankMatrix(ArrayList<ArrayList<Integer>> highschoolP
         int[][] matrix = createSchoolRankMatrix(highschoolPrefs,m,n); //create a 2d array indexed [school][student], value is rank of the student for each school
         
         LinkedList<LinkedList<Integer>> acceptedStudentsNames = new LinkedList<>();
-        LinkedList<LinkedList<Integer>> acceptedStudentsRanks = new LinkedList<>();
 
 
         // Initialize the 2D ArrayList to be empty
         for (int i = 0; i < m; i++) {
             acceptedStudentsNames.add(new LinkedList<>());
-            acceptedStudentsRanks.add(new LinkedList<>());
         }
 
         boolean studentRemains = true;
@@ -200,22 +198,32 @@ private int[][] createSchoolRankMatrix(ArrayList<ArrayList<Integer>> highschoolP
                     
                     // Find the correct spot to insert the new number
 
-                    while (nameIterator.hasNext()) {
-                        int nextName = nameIterator.next();
-                        if (matrix[h][studentPrimeRank] > matrix[h][nextName]) {
-                            // Insert the new number at the correct spot
-                            currAcceptNames.add(nameIterator.nextIndex(), studentPrime);
-                            break;
+                    if(currAcceptNames.isEmpty()){
+                        currAcceptNames.add(nameIterator.nextIndex(), studentPrime);
+                    }else{
+                        while (nameIterator.hasNext()) {
+                            int nextName = nameIterator.next();
+                            if (matrix[h][studentPrimeRank] > matrix[h][nextName]) {
+                                // Insert the new number at the correct spot
+                                currAcceptNames.add(nameIterator.nextIndex(), studentPrime);
+                                break;
+                            }
                         }
                     }
+
+                    
 
                     
                 }else{ //check if the high school would rather have them or their least desirable student
                     //find least desired student
 
                         //check if it has at least one spot
-                        if(highschoolSpots.get((h)) > 0){
-                            if(matrix[h][studentPrime] <  currAcceptNames.get(0)){//check if studentPrime is more desirable than that schools least desirable student, index 0
+                        if(!currAcceptNames.isEmpty()){
+                            int leastDesirable = currAcceptNames.get(0);
+                            int leastDesirableRank =matrix[h][leastDesirable]; 
+                            int studentRank = matrix[h][studentPrime]; 
+
+                            if( studentRank < leastDesirableRank  ){//check if studentPrime is more desirable than that schools least desirable student, index 0
                                 //perform swap
                                 studentMatching.set(studentPrime, h);
                                 studentMatching.set(currAcceptNames.get(0), -1); //make undesirable single
@@ -224,20 +232,26 @@ private int[][] createSchoolRankMatrix(ArrayList<ArrayList<Integer>> highschoolP
                                 
                                 // Find the correct spot to insert the new number
             
-                                while (nameIterator.hasNext()) {
-                                    int nextName = nameIterator.next();
-                                    if (matrix[h][studentPrimeRank] > matrix[h][nextName]) {
-                                        // Insert the new number at the correct spot
-                                        currAcceptNames.add(nameIterator.nextIndex(), studentPrime);
-                                        break;
+
+                                if(currAcceptNames.isEmpty()){
+                                    currAcceptNames.add(nameIterator.nextIndex(), studentPrime);
+                                }else{
+                                    while (nameIterator.hasNext()) {
+                                        int nextName = nameIterator.next();
+                                        if (matrix[h][studentPrimeRank] > matrix[h][nextName]) {
+                                            // Insert the new number at the correct spot
+                                            currAcceptNames.add(nameIterator.nextIndex(), studentPrime);
+                                            break;
+                                        }
                                     }
+
                                 }
+
+                                
                             }
 
                         }
 
-                        
-            
                 }
         }
             }
