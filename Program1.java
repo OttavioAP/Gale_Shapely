@@ -5,6 +5,8 @@
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.ListIterator;
 
 /**
  * Your solution goes in this class.
@@ -118,16 +120,18 @@ private boolean compareStudents(int sp,int h, int s, ArrayList<ArrayList<Integer
 
 
 
-
-public class StudentRank {
-    public int student;
-    public int rank;
-
-    public StudentRank(int student, int rank) {
-        this.student = student;
-        this.rank = rank;
+private int[][] createSchoolRankMatrix(ArrayList<ArrayList<Integer>> highschoolPrefs ,int m, int n) {
+    int[][] matrix = new int[m][n]; //m schools rows, n students columns
+    for(int school = 0; school <m;school++){
+        for(int rank =0; rank < n; rank++){
+            matrix[school][highschoolPrefs.get(school).get(rank)] = rank;
+        }
     }
+
+    return matrix;
 }
+
+
 
 
         /**
@@ -148,6 +152,17 @@ public class StudentRank {
 
         ArrayList<Integer> studentMatching = new ArrayList<>(Collections.nCopies(n, -1)); // Initialize all students as unmatched
         ArrayList<Integer> studentPreferenceIndex = new ArrayList<>(Collections.nCopies(n, 0)); // Initialize all students as unmatched
+        int[][] matrix = createSchoolRankMatrix(highschoolPrefs,m,n); //create a 2d array indexed [school][student], value is rank of the student for each school
+        
+        LinkedList<LinkedList<Integer>> acceptedStudentsNames = new LinkedList<>();
+        LinkedList<LinkedList<Integer>> acceptedStudentsRanks = new LinkedList<>();
+
+
+        // Initialize the 2D ArrayList to be empty
+        for (int i = 0; i < m; i++) {
+            acceptedStudentsNames.add(new LinkedList<>());
+            acceptedStudentsRanks.add(new LinkedList<>());
+        }
 
         boolean studentRemains = true;
         int studentPrime = -1;
@@ -168,33 +183,61 @@ public class StudentRank {
             if(studentRemains){
                 int h = studentPrefs.get(studentPrime).get(studentPreferenceIndex.get(studentPrime)); //gets next desired school
                 studentPreferenceIndex.set(studentPrime, studentPreferenceIndex.get(studentPrime) +1); //increment after use
+                int studentPrimeRank = matrix[h][studentPrime];
+
+                LinkedList<Integer> currAcceptNames= acceptedStudentsNames.get(h);
+                ListIterator<Integer> nameIterator = currAcceptNames.listIterator();
 
                 if(highschoolSpots.get(h) > 0 ){//check if the school has an open spot
                     highschoolSpots.set(h,highschoolSpots.get(h) - 1); //decrement number of spots
                     studentMatching.set(studentPrime, h); //match the two
+
+                    
+
+                    //insert in an ordered way, 0 index least desirable
+                    
+
+                    
+                    // Find the correct spot to insert the new number
+
+                    while (nameIterator.hasNext()) {
+                        int nextName = nameIterator.next();
+                        if (matrix[h][studentPrimeRank] > matrix[h][nextName]) {
+                            // Insert the new number at the correct spot
+                            currAcceptNames.add(nameIterator.nextIndex(), studentPrime);
+                            break;
+                        }
+                    }
+
                     
                 }else{ //check if the high school would rather have them or their least desirable student
+                    //find least desired student
 
-                    int leastPreferredRank =-1;
-                    int leastPreferredStudent = -1;
-
-                    for(int s =0; s < n;s++){//find every student that belongs to that school
-                        if(studentMatching.get(s) == h){ //check for belonging to that school
-
-                            if(leastPreferredRank < highschoolPrefs.get(h).indexOf(s)){ //compare to find least desirable student
-                                //drop s, add studentprime  
-                                leastPreferredRank = highschoolPrefs.get(h).indexOf(s);
-                                leastPreferredStudent = s;
+                        //check if it has at least one spot
+                        if(highschoolSpots.get((h)) > 0){
+                            if(matrix[h][studentPrime] <  currAcceptNames.get(0)){//check if studentPrime is more desirable than that schools least desirable student, index 0
+                                //perform swap
+                                studentMatching.set(studentPrime, h);
+                                studentMatching.set(currAcceptNames.get(0), -1); //make undesirable single
+                                //remove from currAcceptNames. It's just index 0 lol
+                                currAcceptNames.remove(0);
+                                
+                                // Find the correct spot to insert the new number
+            
+                                while (nameIterator.hasNext()) {
+                                    int nextName = nameIterator.next();
+                                    if (matrix[h][studentPrimeRank] > matrix[h][nextName]) {
+                                        // Insert the new number at the correct spot
+                                        currAcceptNames.add(nameIterator.nextIndex(), studentPrime);
+                                        break;
+                                    }
+                                }
                             }
-                        }
-                    }
 
-                    if(leastPreferredRank > 0){ //if the least desirable student is less desirable than studentprime, swap
-                        if(leastPreferredRank >  highschoolPrefs.get(h).indexOf(studentPrime)){
-                        studentMatching.set(studentPrime, h);
-                        studentMatching.set(leastPreferredStudent, -1);
                         }
-                    }
+
+                        
+            
                 }
         }
             }
@@ -293,126 +336,4 @@ public class StudentRank {
 
 
 
-    // /**
-    //  * Determines a solution to the stable matching problem from the given input set. Study the
-    //  * project description to understand the variables which represent the input to your solution.
-    //  *
-    //  * @return A stable Matching.
-    //  */
-    // @Override
-    // public Matching stableMatchingGaleShapley_highschooloptimal(Matching problem) {
-    //     /*
-    //      * get data
-    //      * create while loop for total spots
-    //      * create 2d arraylist of high school spots
-    //      * create arraylist of indices for high school spots 
-    //      * create 
-    //      * 
-    //      * while spots remaining
-    //      *      find a high school with remaining spots
-    //      *      have it propose to its next highest preference student
-    //      *      if the student is single, it accepts
-    //      *      if the student is not single, use the students preference list to check if the high school proposing is higher or lower on his pref list
-    //      *      if it's lower, do nothing
-    //      *      if its higher, then remove that student from the arraylist of hs spots, and decrease the index of that high school
-    //      *      then, update the Matching arraylist (constant)
-    //      *      Then, update the corresponding high schools arraylist (constant)
-    //      * 
-    //      */
-
-    //     int m = problem.getHighSchoolCount();
-    //     int n = problem.getStudentCount();
-    //     int totalSpots = problem.totalHighSchoolSpots();
-    //     int currentlyTakenSpots =0;
-    //     ArrayList<ArrayList<Integer>> highschoolPrefs = problem.getHighSchoolPreference();//indexed by high school, contains an arraylist of their student pref, indexed by student
-    //     ArrayList<ArrayList<Integer>> studentPrefs = problem.getStudentPreference();//indexed by student, contains an arraylist of their high school pref, indexed by high school
-    //     ArrayList<Integer> highschoolSpots = problem.getHighSchoolSpots();//indexed by high schools, contains there # of spots
-        
-
-    //     ArrayList<LinkedList<Integer>> proposals = new ArrayList<>(m); // Track the proposals made by each high school to students, indexed by high school
-    //     for (int i = 0; i < m; i++) {
-    //         proposals.add(new LinkedList<>());
-    //     }
-
-    //     ArrayList<Integer> proposalsIndex = new ArrayList<>(m);//index of proposals, tracks length of proposals List
-    //     for (int i = 0; i < m; i++) {
-    //         proposalsIndex.add(0);
-    //     }
-    //     ArrayList<Integer> nextPrefStudent = new ArrayList<>(m);//holds the index of the next student to propose to for each hs, indexed by hs
-    //     for (int i = 0; i < m; i++) {
-    //         nextPrefStudent.add(0);
-    //     }
-
-    //     ArrayList<Integer> matching= new ArrayList<>(n); // Initialize all students as unmatched
-    //     for (int i = 0; i < n; i++) {
-    //         matching.add(-1);
-    //     }
-
-
-    //     while (currentlyTakenSpots <totalSpots){
-    //         int currentHighSchool = -1;
-    //         int currentStudent = -1;
-    //         //find a high school i with available spots
-
-    //         for(int i =0; i < m;i++){
-    //             if(proposalsIndex.get(i) < highschoolSpots.get(i)){ //check if has open spot
-    //                 currentHighSchool = i;
-    //                 break;
-    //             }
-    //         }
-    //         if (currentHighSchool == -1) {
-    //             throw new RuntimeException("Error: No open spots found");
-    //         }
-
-    //         //find next student
-    //         currentStudent = highschoolPrefs.get(currentHighSchool).get(nextPrefStudent.get(currentHighSchool));
-    //         nextPrefStudent.set(currentHighSchool,currentStudent + 1); //increment index
-
-    //         //propose
-    //         if(matching.get(currentStudent) ==-1){
-    //             //match up, increment everything, decrease total spots
-    //             currentlyTakenSpots++;
-    //             matching.set(currentStudent,currentHighSchool);
-    //             proposals.get(currentHighSchool).add(currentStudent);
-    //             proposalsIndex.set(currentHighSchool,(proposalsIndex.get(currentHighSchool) +1 )); //increment index
-            
-    //         }else{
-    //             //compare,maybe match up, maybe do nothing. If do nothing, still increment 
-    //             //compare
-    //             int compareHighSchool = matching.get(currentStudent);
-    //             int compPref = studentPrefs.indexOf(compareHighSchool); //o(n) operation
-    //             int currPreference = studentPrefs.indexOf(currentHighSchool);
-
-    //             if(currPreference < compPref){ //lower index means higher preference, means switch
-    //                 //switch
-    //                 matching.set(currentStudent, currentHighSchool);//perform actual switch
-    //                 proposals.get(compareHighSchool).remove(currentStudent);
-    //                 proposalsIndex.set(compareHighSchool,proposalsIndex.get(compareHighSchool) -1);
-
-    //                 proposals.get(currentHighSchool).add(currentStudent); //switch
-    //                 proposalsIndex.set(currentHighSchool,proposalsIndex.get(currentHighSchool) +1);
-
-    //             }
-    //             //if index is higher, then it's lower preference, don't switch
-    //         }
-            
-    //     } 
-
-    //     return new Matching(problem, matching);
-
-    // }
-    
-    
 }
-
-/*
- * matching object includes
- * m number of high schools
- * n number of students
- * highschool rpeference list (arraylist of arraylist)
- * stdeunt preference 
- * high school spots
- * student matching
- * 
- * 
- */
